@@ -1,0 +1,3 @@
+FROM docker:18
+ADD release/linux/amd64/drone-docker /bin/
+ENTRYPOINT ["/bin/drone-docker"]

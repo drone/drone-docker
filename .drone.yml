@@ -1,0 +1,125 @@
+---
+kind: pipeline
+name: linux-amd64
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: build
+  image: golang:1.11
+  commands:
+  - go test -v
+  - ./scripts/build_linux_amd64.sh
+
+- name: publish
+  image: plugins/docker
+  settings:
+    auto_tag: true
+    auto_tag_suffix: linux-amd64
+    dockerfile: docker/Dockerfile.linux.amd64
+    password:
+      $secret: password
+    repo: drone/docker
+    username: drone
+  when:
+    event:
+    - push
+    - tag
+
+---
+kind: pipeline
+name: linux-arm64
+
+platform:
+  os: linux
+  arch: arm64
+
+steps:
+- name: build
+  image: golang:1.11
+  commands:
+  - go test -v
+  - ./scripts/build_linux_arm64.sh
+
+- name: publish
+  image: plugins/docker
+  settings:
+    auto_tag: true
+    auto_tag_suffix: linux-arm64
+    dockerfile: docker/Dockerfile.linux.arm64
+    password:
+      $secret: password
+    repo: drone/docker
+    username: drone
+  when:
+    event:
+    - push
+    - tag
+
+---
+kind: pipeline
+name: linux-arm
+
+platform:
+  os: linux
+  arch: arm
+
+steps:
+- name: build
+  image: golang:1.11
+  commands:
+  - go test -v
+  - ./scripts/build_linux_arm.sh
+
+- name: publish
+  image: plugins/docker
+  settings:
+    auto_tag: true
+    auto_tag_suffix: linux-arm
+    dockerfile: docker/Dockerfile.linux.arm
+    password:
+      $secret: password
+    repo: drone/docker
+    username: drone
+  when:
+    event:
+    - push
+    - tag
+
+---
+kind: pipeline
+name: manifest
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: publish
+  image: plugins/manifest:1
+  settings:
+    ignore_missing: true
+    password:
+      $secret: password
+    spec: docker/manifest.tmpl
+    username:
+      $secret: username
+  when:
+    event:
+    - push
+
+depends_on:
+- build-linux-arm
+- build-linux-arm64
+- build-linux-amd64
+
+---
+kind: secret
+type: external
+data:
+  password: "drone/docker#password"
+  username: "drone/docker#username"
+
+...
