@@ -44,7 +44,7 @@ steps:
   - ./scripts/build_linux_arm64.sh
 
 - name: publish
-  image: plugins/docker
+  image: plugins/docker:linux-arm64
   settings:
     auto_tag: true
     auto_tag_suffix: linux-arm64
@@ -74,7 +74,7 @@ steps:
   - ./scripts/build_linux_arm.sh
 
 - name: publish
-  image: plugins/docker
+  image: plugins/docker:linux-arm
   settings:
     auto_tag: true
     auto_tag_suffix: linux-arm
