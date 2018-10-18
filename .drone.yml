@@ -1,6 +1,6 @@
 ---
 kind: pipeline
-name: linux-amd64
+name: build-linux-amd64
 
 platform:
   os: linux
@@ -30,7 +30,7 @@ steps:
 
 ---
 kind: pipeline
-name: linux-arm64
+name: build-linux-arm64
 
 platform:
   os: linux
@@ -60,7 +60,7 @@ steps:
 
 ---
 kind: pipeline
-name: linux-arm
+name: build-linux-arm
 
 platform:
   os: linux

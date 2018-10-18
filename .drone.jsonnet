@@ -18,9 +18,9 @@ local SecretDocker = {
 
 # returns a Pipeline resource that builds, tests and
 # publishes Docker images for the Linux architecture.
-local PipelineLinux(os='linux', arch='amd64', variant='') = {
+local PipelineLinux(os="linux", arch="amd64", variant="") = {
   kind: "pipeline",
-  name: os + '-' + arch,
+  name: "build-" + os + "-" + arch,
   platform: {
     os: os,
     arch: arch,
@@ -84,9 +84,9 @@ local PipelineManifest = {
 };
 
 [
-    PipelineLinux('linux', 'amd64'),
-    PipelineLinux('linux', 'arm64'),
-    PipelineLinux('linux', 'arm'),
+    PipelineLinux("linux", "amd64"),
+    PipelineLinux("linux", "arm64"),
+    PipelineLinux("linux", "arm"),
     PipelineManifest,
     SecretDocker,
 ]
