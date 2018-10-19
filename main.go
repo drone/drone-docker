@@ -95,5 +95,9 @@ func main() {
 		if err != nil {
 			os.Exit(1)
 		}
+		err = purge(c)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
