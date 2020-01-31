@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
@@ -25,7 +26,10 @@ func purge(c *config) error {
 		return err
 	}
 
+	bgContext := context.Background()
+
 	r, err := createClient(
+		bgContext,
 		c.Docker.Auth.Username,
 		c.Docker.Auth.Password,
 		// TODO(bradrydzewski) this is currently hard-coded
@@ -45,19 +49,19 @@ func purge(c *config) error {
 	}
 
 	// STEP 1: get the manifest for the temporary tag.
-	manifest, err := r.Manifest(alias.Path, alias.Reference())
+	manifest, err := r.Manifest(bgContext, alias.Path, alias.Reference())
 	if err != nil {
 		return err
 	}
 
 	// STEP 2: upload the manifest for the user-defined tag.
-	err = r.PutManifest(image.Path, image.Reference(), manifest)
+	err = r.PutManifest(bgContext, image.Path, image.Reference(), manifest)
 	if err != nil {
 		return err
 	}
 
 	// STEP 4: get the digest for the temporary tag.
-	digest, err := r.Digest(alias)
+	digest, err := r.Digest(bgContext, alias)
 	if err != nil {
 		return err
 	}
@@ -76,7 +80,7 @@ func purge(c *config) error {
 		).DeleteTag(alias.Path, alias.Tag)
 	}
 	// STEP 5b: delete the digest from the registry.
-	return r.Delete(alias.Path, digest)
+	return r.Delete(bgContext, alias.Path, digest)
 }
 
 // HACK the reg package (github.com/genuinetools/reg) tries to
