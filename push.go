@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"io"
 	"os/exec"
 	"time"
@@ -9,7 +10,7 @@ import (
 	"github.com/genuinetools/reg/repoutils"
 )
 
-func push(w io.Writer, c *config) error {
+func push(ctx context.Context, w io.Writer, c *config) error {
 	cmd := exec.Command(
 		"docker",
 		"push",
@@ -32,7 +33,7 @@ func push(w io.Writer, c *config) error {
 		return err
 	}
 
-	r, err := createClient(
+	r, err := createClient(ctx,
 		c.Docker.Auth.Username,
 		c.Docker.Auth.Password,
 		alias.Domain,
@@ -43,20 +44,20 @@ func push(w io.Writer, c *config) error {
 
 	// STEP 1: get the manifest for the temporary (aliased)
 	// image tag.
-	manifest, err := r.Manifest(alias.Path, alias.Reference())
+	manifest, err := r.Manifest(ctx, alias.Path, alias.Reference())
 	if err != nil {
 		return err
 	}
 	// STEP 2: upload the manifest with the user-defined
 	// image tag.
-	err = r.PutManifest(image.Path, image.Reference(), manifest)
+	err = r.PutManifest(ctx, image.Path, image.Reference(), manifest)
 	if err != nil {
 		return err
 	}
 
 	// STEP 4: get the digest for the temporary (aliased)
 	// image tag.
-	digest, err := r.Digest(alias)
+	digest, err := r.Digest(ctx, alias)
 	if err != nil {
 		return err
 	}
@@ -65,17 +66,17 @@ func push(w io.Writer, c *config) error {
 	}
 	// STEP 5: delete the digest for the temporary (aliased)
 	// image tag.
-	return r.Delete(alias.Path, digest)
+	return r.Delete(ctx, alias.Path, digest)
 }
 
-func createClient(username, password, domain string) (*registry.Registry, error) {
+func createClient(ctx context.Context, username, password, domain string) (*registry.Registry, error) {
 	auth, err := repoutils.GetAuthConfig(username, password, domain)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create the registry client.
-	return registry.New(auth, registry.Opt{
+	return registry.New(ctx, auth, registry.Opt{
 		Insecure: false,
 		Debug:    false,
 		SkipPing: false,
