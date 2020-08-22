@@ -1,3 +1,8 @@
 module github.com/drone/drone-docker
 
-require github.com/kelseyhightower/envconfig v1.3.0
+go 1.14
+
+require (
+	github.com/genuinetools/reg v0.16.1
+	github.com/kelseyhightower/envconfig v1.3.0
+)

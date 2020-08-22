@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	"os"
@@ -63,6 +64,8 @@ var (
 	dockerPush  bool
 )
 
+var ctx context.Context
+
 func main() {
 	flag.BoolVar(&dockerBuild, "build", false, "docker build")
 	flag.BoolVar(&dockerLogin, "login", false, "docker login")
@@ -75,6 +78,8 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	username := c.Docker.Auth.Username
+	ctx := NewContext(ctx, username)
 	if dockerBuild {
 		err = build(os.Stdout, c)
 		if err != nil {
@@ -91,13 +96,17 @@ func main() {
 	}
 
 	if dockerPush {
-		err := push(os.Stdout, c)
+		err := push(ctx, os.Stdout, c)
 		if err != nil {
 			os.Exit(1)
 		}
-		err = purge(c)
+		err = purge(ctx, c)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
+}
+
+func NewContext(ctx context.Context, user string) context.Context {
+	return context.WithValue(ctx, "username", user)
 }

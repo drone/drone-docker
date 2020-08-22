@@ -10,10 +10,10 @@ import (
 	"github.com/genuinetools/reg/repoutils"
 )
 
-func push(ctx context.Context, w io.Writer, c *config) error {
+func sign(ctx context.Context, w io.Writer, c *config) error {
 	cmd := exec.Command(
 		"docker",
-		"push",
+		"sign",
 		c.Docker.ImageAlias,
 	)
 	cmd.Stdout = w
